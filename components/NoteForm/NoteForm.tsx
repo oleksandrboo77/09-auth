@@ -10,11 +10,12 @@ import css from "./NoteForm.module.css";
 export default function NoteForm() {
   const router = useRouter();
   const qc = useQueryClient();
-  const { draft, setDraft } = useNoteStore();
+  const { draft, setDraft, clearDraft } = useNoteStore();
 
   const mutation = useMutation({
     mutationFn: (payload: CreateNoteInput) => apiCreateNote(payload),
     onSuccess: () => {
+      clearDraft();
       qc.invalidateQueries({ queryKey: ["notes"] });
       router.replace("/notes");
     },

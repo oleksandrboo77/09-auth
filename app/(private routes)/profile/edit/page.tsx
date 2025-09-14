@@ -1,28 +1,40 @@
 "use client";
+
 import { useEffect, useState, FormEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import css from "./EditProfilePage.module.css";
 import { apiGetMe, apiUpdateMe } from "@/lib/api/clientApi";
+import type { AxiosError } from "axios";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function EditProfilePage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [avatar, setAvatar] = useState<string | undefined>();
+  const [error, setError] = useState("");
+  const setUser = useAuthStore((s) => s.setUser);
 
   useEffect(() => {
     apiGetMe().then((me) => {
-      setUsername(me.userName || "");
+      setUsername(me.username || "");
       setEmail(me.email);
-      setAvatar(me.photoUrl);
+      setAvatar(me.avatar);
     });
   }, []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    await apiUpdateMe({ userName: username });
-    router.replace("/profile");
+    setError("");
+    try {
+      const updated = await apiUpdateMe({ username });
+      setUser(updated);
+      router.replace("/profile");
+    } catch (err: unknown) {
+      const axiosErr = err as AxiosError<{ message?: string }>;
+      setError(axiosErr.response?.data?.message || "Update failed");
+    }
   }
 
   return (
@@ -52,6 +64,8 @@ export default function EditProfilePage() {
 
           <p>Email: {email}</p>
 
+          {error && <p className={css.error}>{error}</p>}
+
           <div className={css.actions}>
             <button type="submit" className={css.saveButton}>
               Save
@@ -59,7 +73,7 @@ export default function EditProfilePage() {
             <button
               type="button"
               className={css.cancelButton}
-              onClick={() => router.back()}
+              onClick={() => router.replace("/profile")}
             >
               Cancel
             </button>

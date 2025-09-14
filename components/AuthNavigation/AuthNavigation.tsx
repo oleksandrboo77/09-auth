@@ -7,7 +7,7 @@ import { apiLogout } from "@/lib/api/clientApi";
 
 export default function AuthNavigation() {
   const router = useRouter();
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated, user, clearIsAuthenticated } = useAuthStore();
 
   if (isAuthenticated) {
     return (
@@ -23,7 +23,7 @@ export default function AuthNavigation() {
             className={css.logoutButton}
             onClick={async () => {
               await apiLogout();
-
+              clearIsAuthenticated();
               router.replace("/sign-in");
             }}
           >

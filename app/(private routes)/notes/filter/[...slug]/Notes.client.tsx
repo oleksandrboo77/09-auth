@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
 import css from "./NotesPage.module.css";
+import Link from "next/link";
 
 import { apiGetNotes } from "@/lib/api/clientApi";
 import type { Note, NoteTag } from "@/types/note";
@@ -59,6 +60,9 @@ export default function NotesClient({ initialTag }: { initialTag?: NoteTag }) {
           onChange={(e) => setSearchDebounced(e.target.value)}
           aria-label="Search notes"
         />
+        <Link href="/notes/action/create" className={css.button}>
+          Create note
+        </Link>
       </div>
 
       {isLoading && <p className={css.status}>Loading…</p>}

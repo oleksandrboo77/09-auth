@@ -1,12 +1,10 @@
 "use client";
-import { useRouter, useParams } from "next/navigation";
+
+import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiGetNote } from "@/lib/api/clientApi";
-import Modal from "@/components/Modal/Modal";
-import css from "./NotePreview.module.css";
 
-export default function NotePreview() {
-  const router = useRouter();
+export default function NotePreviewClientMirror() {
   const { id } = useParams<{ id: string }>();
 
   const { data, isLoading, isError } = useQuery({
@@ -15,33 +13,14 @@ export default function NotePreview() {
     refetchOnMount: false,
   });
 
-  const close = () => router.back();
+  if (isLoading) return <p>Loading note…</p>;
+  if (isError || !data) return <p>Failed to load note</p>;
 
   return (
-    <Modal onClose={close}>
-      {isLoading ? (
-        <p>Loading, please wait...</p>
-      ) : isError || !data ? (
-        <p>Something went wrong.</p>
-      ) : (
-        <div className={css.container}>
-          <button className={css.backBtn} onClick={close}>
-            ← Back
-          </button>
-          <div className={css.item}>
-            <div className={css.header}>
-              <h2>{data.title}</h2>
-              <span className={css.tag} title={data.tag}>
-                {data.tag}
-              </span>
-            </div>
-            <p className={css.content}>{data.content}</p>
-            <p className={css.date}>
-              {new Date(data.createdAt).toLocaleString()}
-            </p>
-          </div>
-        </div>
-      )}
-    </Modal>
+    <article style={{ padding: 16 }}>
+      <h2 style={{ marginBottom: 8 }}>{data.title}</h2>
+      <p style={{ opacity: 0.7, marginBottom: 12 }}>#{data.tag}</p>
+      <p>{data.content}</p>
+    </article>
   );
 }

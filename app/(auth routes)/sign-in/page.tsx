@@ -1,13 +1,17 @@
 "use client";
+
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AxiosError } from "axios";
 import css from "./SignInPage.module.css";
 import { apiLogin } from "@/lib/api/clientApi";
+import { useAuthStore } from "@/lib/store/authStore";
+import type { User } from "@/types/user";
 
 export default function SignInPage() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const setUser = useAuthStore((s) => s.setUser);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -18,7 +22,8 @@ export default function SignInPage() {
     const password = String(fd.get("password"));
 
     try {
-      await apiLogin({ email, password });
+      const user = (await apiLogin({ email, password })) as User;
+      setUser(user);
       router.replace("/profile");
     } catch (err: unknown) {
       const axiosErr = err as AxiosError<{ message?: string }>;
@@ -30,7 +35,6 @@ export default function SignInPage() {
     <main className={css.mainContent}>
       <form className={css.form} onSubmit={onSubmit}>
         <h1 className={css.formTitle}>Sign in</h1>
-
         <div className={css.formGroup}>
           <label htmlFor="email">Email</label>
           <input
@@ -41,7 +45,6 @@ export default function SignInPage() {
             required
           />
         </div>
-
         <div className={css.formGroup}>
           <label htmlFor="password">Password</label>
           <input
@@ -52,13 +55,11 @@ export default function SignInPage() {
             required
           />
         </div>
-
         <div className={css.actions}>
           <button type="submit" className={css.submitButton}>
             Log in
           </button>
         </div>
-
         {error && <p className={css.error}>{error}</p>}
       </form>
     </main>
