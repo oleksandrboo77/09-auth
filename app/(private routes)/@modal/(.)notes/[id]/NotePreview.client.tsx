@@ -4,12 +4,12 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiGetNote } from "@/lib/api/clientApi";
 
-export default function NotePreviewClientMirror() {
+export default function NotePreview() {
   const { id } = useParams<{ id: string }>();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["note", id],
-    queryFn: () => apiGetNote(id),
+    queryFn: () => apiGetNote(String(id)),
     refetchOnMount: false,
   });
 
