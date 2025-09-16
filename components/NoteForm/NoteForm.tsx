@@ -1,5 +1,6 @@
 "use client";
 
+import { FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CreateNoteInput, NoteTag } from "@/types/note";
@@ -21,17 +22,21 @@ export default function NoteForm() {
     },
   });
 
-  const createAction = async (formData: FormData) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+
     const payload: CreateNoteInput = {
-      title: String(formData.get("title") ?? ""),
-      content: String(formData.get("content") ?? ""),
-      tag: String(formData.get("tag") ?? "Todo") as NoteTag,
+      title: String(fd.get("title") ?? ""),
+      content: String(fd.get("content") ?? ""),
+      tag: String(fd.get("tag") ?? "Todo") as NoteTag,
     };
-    await mutation.mutateAsync(payload);
+
+    mutation.mutate(payload);
   };
 
   return (
-    <form className={css.form} action={createAction}>
+    <form className={css.form} onSubmit={onSubmit}>
       <label className={css.label}>
         <span className={css.labelText}>Title</span>
         <input
