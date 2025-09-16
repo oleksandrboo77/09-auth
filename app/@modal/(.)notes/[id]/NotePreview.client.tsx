@@ -1,10 +1,12 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiGetNote } from "@/lib/api/clientApi";
+import Modal from "@/components/Modal/Modal";
 
 export default function NotePreview() {
+  const router = useRouter();
   const { id } = useParams<{ id: string }>();
 
   const { data, isLoading, isError } = useQuery({
@@ -14,14 +16,24 @@ export default function NotePreview() {
     refetchOnMount: false,
   });
 
-  if (isLoading) return <p>Loading note…</p>;
-  if (isError || !data) return <p>Failed to load note</p>;
+  const handleClose = () => router.back();
 
   return (
-    <article style={{ padding: 16 }}>
-      <h2 style={{ marginBottom: 8 }}>{data.title}</h2>
-      <p style={{ opacity: 0.7, marginBottom: 12 }}>#{data.tag}</p>
-      <p>{data.content}</p>
-    </article>
+    <Modal onClose={handleClose}>
+      {isLoading && <p>Loading note…</p>}
+      {(isError || !data) && !isLoading && <p>Failed to load note</p>}
+
+      {!isLoading && !isError && data && (
+        <article style={{ padding: 16, position: "relative" }}>
+          <button type="button" onClick={handleClose} aria-label="Close">
+            ✕
+          </button>
+
+          <h2>{data.title}</h2>
+          <p>#{data.tag}</p>
+          <p>{data.content}</p>
+        </article>
+      )}
+    </Modal>
   );
 }
