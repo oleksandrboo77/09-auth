@@ -18,7 +18,7 @@ export default function NoteForm() {
     onSuccess: () => {
       clearDraft();
       qc.invalidateQueries({ queryKey: ["notes"] });
-      router.replace("/notes");
+      router.back();
     },
   });
 
